@@ -1,0 +1,41 @@
+import numpy
+
+np = numpy
+
+
+
+class State:
+	#creates a new state object, taking pitch, roll, and 
+	def __init__(self, theta = 0.0, phi = 0.0, psi = 0.0):
+		self.theta = theta  #pitch
+		self.phi = phi 		#roll
+		self.psi = psi		#yaw
+		self.omega = np.matrix('0;0;0')
+
+
+
+	def test_print():
+		print attitude_matrix()
+
+
+
+	def attitude_matrix(self): #gives the attitude matrix R (DOUBLE CHECK ALL THE TRIG OPERATIONS!!!!!)
+		a1 = (np.cos(self.theta)*np.cos(self.psi))
+		a2 = (np.sin(self.phi)*np.sin(self.theta)*np.cos(self.psi)-np.cos(self.phi)*np.sin(self.psi))
+		a3 = (np.cos(self.phi)*np.sin(self.theta)*np.cos(self.psi)+np.sin(self.phi)*np.sin(self.psi))
+		
+		b1 = np.cos(self.theta)*np.sin(self.phi)
+		b2 = np.sin(self.psi)*np.sin(self.theta)*np.sin(self.phi)+np.cos(self.psi)*np.cos(self.phi)
+		b3 = np.cos(self.psi)*np.sin(self.theta)*np.sin(self.phi)-np.sin(self.psi)*np.cos(self.phi)
+
+		c1 = (-np.sin(self.theta))
+		c2 = np.sin(self.phi)*np.cos(self.theta)
+		c3 = np.cos(self.phi)*np.cos(self.theta)
+
+		return  np.matrix('a1 a2 a3; b1 b2 b3; c1 c2 c3') 
+
+
+
+test_state = State(1, 1, 1)
+print test_state.attitude_matrix()
+
