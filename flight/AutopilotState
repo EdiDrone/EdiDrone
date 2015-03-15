@@ -1,7 +1,4 @@
-import numpy
-
-np = numpy
-
+import numpy as np
 
 
 class State:
@@ -10,9 +7,36 @@ class State:
 		self.theta = theta  #pitch
 		self.phi = phi 		#roll
 		self.psi = psi		#yaw
-		self.omega = np.matrix('0;0;0')
+		self.omega = [np.matrix('0;0;0')]
+		self.R = attitude_matrix()
+
+	def update_R():# should look like Rˆ(omega_y − b_hat + sigma_r)×,
+		R = R()
+
+	#b_hat is the same as sigma_b
+	def b_hat(k_I, sigma_r):
+		return sigma_b(k_I, sigma_r)
+
+	def sigma_b(k_I, sigma_r):
+		return k_I*sigma_r;
+
+	#Generates the sigma sub r vector used to get the new position. k, vb, and vi should be lists of the same length
+	def sigma_r(k, vb, vi):
+		return_vector = np.matrix('0;0;0')
+		i = 0
+		for koefficient in k:
+			return_vector += koefficient*np.dot(np.cross(vb[i],attitude_matrix().getT()),vi[i])
+		return return_vector
 
 
+
+	#converts a vector to a matrix so we can manipulate it with matrix muliplication
+	def vector_to_matrix(vector):
+		return np.matrix('vector[0]; vector[1]; vector[2]')
+
+	#gives a vector from a matrix (not sure if this works)
+	def matrix_to_vector(matrix):
+		return matrix.getT.take([0,1,2])
 
 	def test_print():
 		print attitude_matrix()
@@ -20,19 +44,26 @@ class State:
 
 
 	def attitude_matrix(self): #gives the attitude matrix R (DOUBLE CHECK ALL THE TRIG OPERATIONS!!!!!)
-		a1 = (np.cos(self.theta)*np.cos(self.psi))
-		a2 = (np.sin(self.phi)*np.sin(self.theta)*np.cos(self.psi)-np.cos(self.phi)*np.sin(self.psi))
-		a3 = (np.cos(self.phi)*np.sin(self.theta)*np.cos(self.psi)+np.sin(self.phi)*np.sin(self.psi))
-		
-		b1 = np.cos(self.theta)*np.sin(self.phi)
-		b2 = np.sin(self.psi)*np.sin(self.theta)*np.sin(self.phi)+np.cos(self.psi)*np.cos(self.phi)
-		b3 = np.cos(self.psi)*np.sin(self.theta)*np.sin(self.phi)-np.sin(self.psi)*np.cos(self.phi)
+		cT = np.cos(this.theta)
+		sT = np.sin(this.theta)
+		cPhi = np.cos(this.phi)
+		sPhi = np.sin(this.phi)
+		cPsi = np.cos(this.psi)
+		sPsi = np.sin(this.psi)
 
-		c1 = (-np.sin(self.theta))
-		c2 = np.sin(self.phi)*np.cos(self.theta)
-		c3 = np.cos(self.phi)*np.cos(self.theta)
+		a1 = (cT*cPsi)
+		a2 = (sPhi*sT*cPsi-cPhi*sinPsi)
+		a3 = (cPhi*sT*cPsi+sPhi*sinPsi)
 
-		return  np.matrix('a1 a2 a3; b1 b2 b3; c1 c2 c3') 
+		b1 = cT*np.sin(self.phi)
+		b2 = sinPsi*sT*sPhi+cPsi*cPhi
+		b3 = cPsi*sT*sPhi-sinPsi*cPhi
+
+		c1 = (-sT)
+		c2 = sPhi*cT
+		c3 = cPhi*cT
+
+		return  np.matrix('a1 a2 a3; b1 b2 b3; c1 c2 c3')
 
 
 
