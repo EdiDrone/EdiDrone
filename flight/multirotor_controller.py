@@ -10,7 +10,6 @@ __author__ = 'kenz'
 # System libraries
 from math import pi
 import numpy as np
-from geometry import rotate
 from collections import namedtuple
 
 # Local libraries

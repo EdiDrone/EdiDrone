@@ -24,10 +24,9 @@ class AttitudeRateController(object):
         PIDStruct = namedtuple("PIDStruct", "Kp Ki Kd")
 
         # Outer loop
-        self.omega_x_PID = PIDStruct(Kp = 0.2, Ki = 0.1, Kd = 0.001)
-        self.omega_y_PID = PIDStruct(Kp = 0.2, Ki = 0.1, Kd = 0.001)
-        self.omega_z_PID = PIDStruct(Kp = 0.2, Ki = 0.1, Kd = 0.001)
-
+        self.omega_x_PID = PIDStruct(Kp = 0.04, Ki = 0.02, Kd = 0.0001)
+        self.omega_y_PID = PIDStruct(Kp = 0.04, Ki = 0.02, Kd = 0.0001)
+        self.omega_z_PID = PIDStruct(Kp = 0.04, Ki = 0.02, Kd = 0.0001)
 
         # Reset the controller, e.g. integrators, variance matrices, etc...
         self.reset_controller()
