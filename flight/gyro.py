@@ -1,6 +1,9 @@
 #!usr/bin/python
 
 import mraa as m
+import struct
+import sys
+import time
 
 gyro=m.I2c(6)
 gyro.address(0x69)
@@ -36,19 +39,46 @@ gyro.writeReg(CTRL_REG4, 0x00)
 # FIFO and interrupt enable
 gyro.writeReg(CTRL_REG5, 0x00)
 
-gyro.writeReg(0x80, 0x01)
+#gyro.writeReg(0x80, 0x01)
+
+
+def uint16_2_int(a):
+	if a >= 32768:
+		a-=65536
+	return a
 
 
 def convertAR(bytes):
-	return int.from_bytes(bytes, byteorder='little')
+	#return struct.unpack('>2B', bytes)
+	a =  ((bytes[0] << 8) | bytes[1])
+	b = uint16_2_int(a)
+	return b
+
+
 
 while True:
+	gyro.writeByte(0x80)
+
 	i2cBytes=gyro.read(0x40)
+	if i2cBytes[0x0F]!=0xD3:
+		print 'Error'
 
 	arXData=[i2cBytes[AR_X_MSB],i2cBytes[AR_X_LSB]]
-	arYData=[i2cBytes[AR_Y_MSB],i2cBytes[AR_Y_LSB]]
-	arZData=[i2cBytes[AR_Z_MSB],i2cBytes[AR_Z_LSB]]
+	#print len(i2cBytes[AR_X_MSB])
 
-	arXInt=convertAR(arXData)
-	arYInt=convertAR(arYData)
-	arZInt=convertAR(arZData)
+	#arXData=[chr(i2cBytes[AR_X_MSB]), chr(i2cBytes[AR_X_LSB])]
+
+	#print arXData
+	#print len(arXData)
+
+	arYData=[i2cBytes[AR_Y_MSB], i2cBytes[AR_Y_LSB]]
+
+	arZData=[i2cBytes[AR_Z_MSB], i2cBytes[AR_Z_LSB]]
+
+
+	arXInt=convertAR(arXData)*0.00381469
+	arYInt=convertAR(arYData)*0.00381469
+	arZInt=convertAR(arZData)*0.00381469
+
+	print str(arXInt) + ' ' + str(arYInt) + ' ' + str(arZInt)
+	#time.sleep(0.07)
