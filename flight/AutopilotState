@@ -3,14 +3,14 @@ import numpy as np
 #
 class State:
 	CONST_GRAVITY = 9.8
-	CONST_E3 = np.matrix('0;0;1')
+	CONST_E3 = np.matrix(((0),(0),(1)))
 
 	#creates a new state object, taking pitch, roll, and yaw in degrees
 	def __init__(self, theta = 0.0, phi = 0.0, psi = 0.0, k = 1):
 		self.theta = theta  #pitch
 		self.phi = phi 		#roll
 		self.psi = psi		#yaw
-		self.omega = [np.matrix('0;0;0')]
+		self.omega = [np.matrix(((0),(0),(0)))]
 		self.R = self.attitude_matrix()
 		self.k = k
 
@@ -42,7 +42,7 @@ class State:
 
 	#Generates the sigma sub r vector used to get the new position. k, vb, and vi should be lists of the same length
 	def sigma_r(k, vb, vi):
-		return_vector = np.matrix('0;0;0')
+		return_vector = np.matrix(((0),(0),(0)))
 		i = 0
 		for koefficient in k:
 			return_vector += koefficient*np.dot(np.cross(vb[i],attitude_matrix().getT()),vi[i])
@@ -52,7 +52,7 @@ class State:
 
 	#converts a vector to a matrix so we can manipulate it with matrix muliplication
 	def vector_to_matrix(vector):
-		return np.matrix('vector[0]; vector[1]; vector[2]')
+		return np.matrix(( (vector[0]), (vector[1],) (vector[2])))
 
 	#gives a vector from a matrix (not sure if this works)
 	def matrix_to_vector(matrix):
@@ -83,7 +83,7 @@ class State:
 		c2 = sPhi*cT
 		c3 = cPhi*cT
 
-		return  np.matrix('a1 a2 a3; b1 b2 b3; c1 c2 c3')
+		return  np.matrix( ( (a1,a2,a3), (b1, b2, b3), (c1, c2, c3) ) )
 
 
 
