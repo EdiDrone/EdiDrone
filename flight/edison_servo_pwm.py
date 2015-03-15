@@ -56,7 +56,6 @@ class EdisonServoPWM(object):
         if pulse_width_us < self.pwm_lower_bound_us:
             pulse_width_us = self.pwm_lower_bound_us
 
-        # Output the signal as the converse of the duty cycle. This is because the servo signal is pulled low during
-        # the transmission
-        self.x.write(1.0 - pulse_width_us / float(self.period_us))
+        # Output the signal as a duty cycle.
+        self.x.write(pulse_width_us / float(self.period_us))
 
