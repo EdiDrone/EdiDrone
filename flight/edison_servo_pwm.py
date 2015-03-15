@@ -19,11 +19,11 @@ class EdisonServoPWM(object):
         if ordinal_channel == 0:
             self.channel = 3
         elif ordinal_channel == 1:
-            self.channel = 4
+            self.channel = 5
         elif ordinal_channel == 2:
-            self.channel = 7
+            self.channel = 6
         elif ordinal_channel == 3:
-            self.channel = 8
+            self.channel = 9
         else:
             return None
 
@@ -35,7 +35,7 @@ class EdisonServoPWM(object):
         self.period_us = int(round(1.0e6/self.frequency))
 
         # Check that the input period is physically possible. If not, return
-        if self.period_us > self.pwm_upper_bound_us:
+        if self.period_us < self.pwm_upper_bound_us:
             return None
 
         # Set channel
@@ -56,7 +56,6 @@ class EdisonServoPWM(object):
         if pulse_width_us < self.pwm_lower_bound_us:
             pulse_width_us = self.pwm_lower_bound_us
 
-        # Output the signal as the converse of the duty cycle. This is because the servo signal is pulled low during
-        # the transmission
-        self.x.write(1.0 - pulse_width_us / float(self.period_us))
+        # Output the signal as a duty cycle.
+        self.x.write(pulse_width_us / float(self.period_us))
 
