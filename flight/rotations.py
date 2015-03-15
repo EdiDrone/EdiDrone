@@ -1,7 +1,7 @@
 import numpy
 np = numpy
 
-def euler_to_dcm(psi, theta, phi)
+def euler_to_dcm(psi, theta, phi):
 	cT = np.cos(theta)
 	sT = np.sin(theta)
 	cPhi = np.cos(phi)
