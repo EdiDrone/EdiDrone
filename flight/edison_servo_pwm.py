@@ -19,11 +19,11 @@ class EdisonServoPWM(object):
         if ordinal_channel == 0:
             self.channel = 3
         elif ordinal_channel == 1:
-            self.channel = 4
+            self.channel = 5
         elif ordinal_channel == 2:
-            self.channel = 7
+            self.channel = 6
         elif ordinal_channel == 3:
-            self.channel = 8
+            self.channel = 9
         else:
             return None
 
