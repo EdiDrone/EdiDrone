@@ -1,17 +1,30 @@
 import numpy as np
 
-
+#
 class State:
-	#creates a new state object, taking pitch, roll, and 
-	def __init__(self, theta = 0.0, phi = 0.0, psi = 0.0):
+	CONST_GRAVITY = 9.8
+	CONST_E3 = np.matrix('0;0;1')
+
+	#creates a new state object, taking pitch, roll, and yaw in degrees
+	def __init__(self, theta = 0.0, phi = 0.0, psi = 0.0, k = 1):
 		self.theta = theta  #pitch
 		self.phi = phi 		#roll
 		self.psi = psi		#yaw
 		self.omega = [np.matrix('0;0;0')]
-		self.R = attitude_matrix()
+		self.R = self.attitude_matrix()
+		self.k = k
 
-	def update_R():# should look like Rˆ(omega_y − b_hat + sigma_r)×,
-		R = R()
+	def set_k(k):
+		self.k = k
+
+	def get_R():
+		return R
+
+	#The method which updates and returns the updated rotation matrix. Takes an acceleration vector and angular momentum vector as arguments
+	def update_R(a, omega): # should look like R(omega_y − b_hat + sigma_r)×
+		b = (-k)*sigma_r(a)
+		R = np.dot(R, omega - b + sigma_r(a))
+		return R 
 
 	#b_hat is the same as sigma_b
 	def b_hat(k_I, sigma_r):
@@ -19,6 +32,13 @@ class State:
 
 	def sigma_b(k_I, sigma_r):
 		return k_I*sigma_r;
+
+	#based on equation 4 from the mahoney paper
+	def sigma_r(a):
+		u_b = a / CONST_GRAVITY
+		ku = k * u_b
+		ru = np.dot(R.getT(), CONST_E3)
+		return np.cross(ku,ru)
 
 	#Generates the sigma sub r vector used to get the new position. k, vb, and vi should be lists of the same length
 	def sigma_r(k, vb, vi):
@@ -44,12 +64,12 @@ class State:
 
 
 	def attitude_matrix(self): #gives the attitude matrix R (DOUBLE CHECK ALL THE TRIG OPERATIONS!!!!!)
-		cT = np.cos(this.theta)
-		sT = np.sin(this.theta)
-		cPhi = np.cos(this.phi)
-		sPhi = np.sin(this.phi)
-		cPsi = np.cos(this.psi)
-		sPsi = np.sin(this.psi)
+		cT = np.cos(self.theta)
+		sT = np.sin(self.theta)
+		cPhi = np.cos(self.phi)
+		sPhi = np.sin(self.phi)
+		cPsi = np.cos(self.psi)
+		sPsi = np.sin(self.psi)
 
 		a1 = (cT*cPsi)
 		a2 = (sPhi*sT*cPsi-cPhi*sinPsi)
