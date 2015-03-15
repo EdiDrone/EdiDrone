@@ -1,5 +1,4 @@
-import numpy
-np = numpy
+import numpy as np
 
 def euler_to_dcm(psi, theta, phi):
 	cT = np.cos(theta)
