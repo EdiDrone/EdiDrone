@@ -35,7 +35,7 @@ class EdisonServoPWM(object):
         self.period_us = int(round(1.0e6/self.frequency))
 
         # Check that the input period is physically possible. If not, return
-        if self.period_us > self.pwm_upper_bound_us:
+        if self.period_us < self.pwm_upper_bound_us:
             return None
 
         # Set channel
