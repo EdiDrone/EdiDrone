@@ -1,6 +1,7 @@
 import numpy as np
 
-#
+
+
 class State:
 	CONST_GRAVITY = 9.8
 	CONST_E3 = np.matrix(((0),(0),(1))).getT()
@@ -22,8 +23,8 @@ class State:
 
 	#The method which updates and returns the updated rotation matrix. Takes an acceleration vector and angular momentum vector as arguments
 	def update_R(self, a, omega):
-		b = (-self.k)*self.sigma_r(a)
-		self.R = np.dot(self.R, omega - b + sigma_r(a))
+		b = self.sigma_r(a)*(-self.k)
+		self.R = cross_product_matrix(np.dot(self.R, omega - b + self.sigma_r(a)))
 		return self.R 
 
 	#b_hat is the same as sigma_b
@@ -31,14 +32,18 @@ class State:
 		return sigma_b(k_I, sigma_r)
 
 	def sigma_b(k_I, sigma_r):
-		return k_I*sigma_r;
+		return k_I*self.sigma_r;
 
 	#based on equation 4 from the mahoney paper
 	def sigma_r(self, a):
-		u_b = a / self.CONST_GRAVITY
+		CONST_GRAVITY = 9.8
+		CONST_E3 = np.matrix(((0),(0),(1))).getT()
+		u_b = a / CONST_GRAVITY
 		ku = self.k * u_b
-		ru = np.dot(self.R.getT(), self.CONST_E3)
-		return np.cross(ku,ru)
+		ru = np.dot(self.R.getT(), CONST_E3)
+		print ku
+		print ru
+		return np.matrix(np.cross(ku.getT(),ru.getT())).getT()
 
 	#Generates the sigma sub r vector used to get the new position. k, vb, and vi should be lists of the same length
 	#def sigma_r(k, vb, vi):
@@ -50,11 +55,11 @@ class State:
 
 
 
-	#converts a vector to a matrix so we can manipulate it with matrix muliplication
+	#converts a vector to a matrix so we can manipulate it with matrix muliplication (untested)
 	def vector_to_matrix(vector):
 		return np.matrix(( (vector[0]), (vector[1],) (vector[2])))
 
-	#gives a vector from a matrix (not sure if this works)
+	#gives a vector from a matrix (untested)
 	def matrix_to_vector(matrix):
 		return matrix.getT.take([0,1,2])
 
@@ -85,13 +90,21 @@ class State:
 
 		return  np.matrix( ( (a1,a2,a3), (b1, b2, b3), (c1, c2, c3) ) )
 
+#returns the skew-symmetric matrix that represents the cross product with the given vector
+def cross_product_matrix(vector):
+	return np.matrix(( (0,-vector[2],vector[1]),(vector[2],0,-vector[0]),(-vector[1],vector[0],0)))
+
 
 
 test_state = State(1, 1, 1, 1)
 print test_state.attitude_matrix()
 print test_state.get_R
-acceleration = np.matrix(((1),(1),(1)))
-angular = np.matrix(((1),(1),(1)))
+acceleration = np.matrix(((1),(1),(1))).getT()
+angular = np.matrix(((1),(1),(1))).getT()
 print test_state.update_R(acceleration,angular)
+print 1
+acceleration = np.matrix(((1),(1),(1))).getT()
+angular = np.matrix(((1),(1),(1))).getT()
 print test_state.update_R(acceleration,angular)
+print 2
 print test_state.update_R(acceleration,angular)
