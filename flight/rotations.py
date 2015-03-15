@@ -19,4 +19,4 @@ def euler_to_dcm(psi, theta, phi):
 	c2 = sPhi*cT
 	c3 = cPhi*cT
 
-	return  np.matrix('a1 a2 a3; b1 b2 b3; c1 c2 c3')
+	return  np.matrix('a1 b1 c1; a2 b2 c2; a3 b3 c3')
