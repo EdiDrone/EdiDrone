@@ -32,7 +32,7 @@ class EdisonServoPWM(object):
         self.frequency = frequency
 
         # Calculate PWM period as a function of servo frequency
-        self.period_us = int(round(1e6/self.frequency))
+        self.period_us = int(round(1.0e6/self.frequency))
 
         # Check that the input period is physically possible. If not, return
         if self.period_us > self.pwm_upper_bound_us:
@@ -58,5 +58,5 @@ class EdisonServoPWM(object):
 
         # Output the signal as the converse of the duty cycle. This is because the servo signal is pulled low during
         # the transmission
-        self.x.write(1 - pulse_width_us/self.period_us)
+        self.x.write(1.0 - pulse_width_us / float(self.period_us))
 
