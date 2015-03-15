@@ -32,14 +32,14 @@ def map_input_to_channel(input_value, min, neutral, max):
     # Scale input to bi-linear range
     if (max > min and input_value >= neutral) or (min > max and input_value <= neutral):
         if max != neutral:
-            value_mapped = (input_value - neutral) / (max - neutral)
+            value_mapped = (input_value - neutral) / float(max - neutral)
         else:
-            value_mapped = 0
+            value_mapped = 0.0
     else:
         if min != neutral:
-            value_mapped = (input_value - neutral) / (neutral - min)
+            value_mapped = (input_value - neutral) / float(neutral - min)
         else:
-            value_mapped = 0
+            value_mapped = 0.0
 
     # Bound
     if value_mapped >  1.0:
