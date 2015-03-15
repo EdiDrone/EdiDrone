@@ -7,7 +7,7 @@ class State:
 	CONST_E3 = np.matrix(((0),(0),(1))).getT()
 
 	#creates a new state object, taking pitch, roll, and yaw in degrees
-	def __init__(self, theta = 0.0, phi = 0.0, psi = 0.0, k = 1):
+	def __init__(self, psi = 0.0, theta = 0.0, phi = 0.0, k = 1):
 		self.theta = theta  #pitch
 		self.phi = phi 		#roll
 		self.psi = psi		#yaw
