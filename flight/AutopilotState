@@ -21,7 +21,7 @@ class State:
 		return R
 
 	#The method which updates and returns the updated rotation matrix. Takes an acceleration vector and angular momentum vector as arguments
-	def update_R(a, omega): # should look like R(omega_y − b_hat + sigma_r)×
+	def update_R(a, omega):
 		b = (-k)*sigma_r(a)
 		R = np.dot(R, omega - b + sigma_r(a))
 		return R 
@@ -72,12 +72,12 @@ class State:
 		sPsi = np.sin(self.psi)
 
 		a1 = (cT*cPsi)
-		a2 = (sPhi*sT*cPsi-cPhi*sinPsi)
-		a3 = (cPhi*sT*cPsi+sPhi*sinPsi)
+		a2 = (sPhi*sT*cPsi-cPhi*sPsi)
+		a3 = (cPhi*sT*cPsi+sPhi*sPsi)
 
-		b1 = cT*np.sin(self.phi)
-		b2 = sinPsi*sT*sPhi+cPsi*cPhi
-		b3 = cPsi*sT*sPhi-sinPsi*cPhi
+		b1 = cT*sPhi
+		b2 = sPsi*sT*sPhi+cPsi*cPhi
+		b3 = cPsi*sT*sPhi-sPsi*cPhi
 
 		c1 = (-sT)
 		c2 = sPhi*cT
@@ -87,6 +87,6 @@ class State:
 
 
 
-test_state = State(1, 1, 1)
+test_state = State(1, 1, 1, 1)
 print test_state.attitude_matrix()
 
