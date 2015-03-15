@@ -3,7 +3,7 @@ import numpy as np
 #
 class State:
 	CONST_GRAVITY = 9.8
-	CONST_E3 = np.matrix(((0),(0),(1)))
+	CONST_E3 = np.matrix(((0),(0),(1))).getT()
 
 	#creates a new state object, taking pitch, roll, and yaw in degrees
 	def __init__(self, theta = 0.0, phi = 0.0, psi = 0.0, k = 1):
@@ -21,10 +21,10 @@ class State:
 		return R
 
 	#The method which updates and returns the updated rotation matrix. Takes an acceleration vector and angular momentum vector as arguments
-	def update_R(a, omega):
-		b = (-k)*sigma_r(a)
-		R = np.dot(R, omega - b + sigma_r(a))
-		return R 
+	def update_R(self, a, omega):
+		b = (-self.k)*self.sigma_r(a)
+		self.R = np.dot(self.R, omega - b + sigma_r(a))
+		return self.R 
 
 	#b_hat is the same as sigma_b
 	def b_hat(k_I, sigma_r):
@@ -34,19 +34,19 @@ class State:
 		return k_I*sigma_r;
 
 	#based on equation 4 from the mahoney paper
-	def sigma_r(a):
-		u_b = a / CONST_GRAVITY
-		ku = k * u_b
-		ru = np.dot(R.getT(), CONST_E3)
+	def sigma_r(self, a):
+		u_b = a / self.CONST_GRAVITY
+		ku = self.k * u_b
+		ru = np.dot(self.R.getT(), self.CONST_E3)
 		return np.cross(ku,ru)
 
 	#Generates the sigma sub r vector used to get the new position. k, vb, and vi should be lists of the same length
-	def sigma_r(k, vb, vi):
-		return_vector = np.matrix(((0),(0),(0)))
-		i = 0
-		for koefficient in k:
-			return_vector += koefficient*np.dot(np.cross(vb[i],attitude_matrix().getT()),vi[i])
-		return return_vector
+	#def sigma_r(k, vb, vi):
+	#	return_vector = np.matrix(((0),(0),(0)))
+	#	i = 0
+	#	for koefficient in k:
+	#		return_vector += koefficient*np.dot(np.cross(vb[i],attitude_matrix().getT()),vi[i])
+	#	return return_vector
 
 
 
@@ -89,4 +89,9 @@ class State:
 
 test_state = State(1, 1, 1, 1)
 print test_state.attitude_matrix()
-
+print test_state.get_R
+acceleration = np.matrix(((1),(1),(1)))
+angular = np.matrix(((1),(1),(1)))
+print test_state.update_R(acceleration,angular)
+print test_state.update_R(acceleration,angular)
+print test_state.update_R(acceleration,angular)
