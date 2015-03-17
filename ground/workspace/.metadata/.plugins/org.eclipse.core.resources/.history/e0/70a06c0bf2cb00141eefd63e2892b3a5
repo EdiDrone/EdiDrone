@@ -1,0 +1,242 @@
+#include "../Constants.h"
+#include "SneakyJoystick.h"
+#include "SneakyJoystickSkinnedBase.h"
+
+//Target host details:
+#define PORT 8080
+#define HOST "74.74.74.74"
+
+#define SJ_PI 3.14159265359f
+#define SJ_PI_X_2 6.28318530718f
+#define SJ_RAD2DEG 180.0f/SJ_PI
+#define SJ_DEG2RAD SJ_PI/180.0f
+
+SneakyJoystick::SneakyJoystick(float s) {
+	side = s;
+}
+
+SneakyJoystick* SneakyJoystick::create(float s) {
+	SneakyJoystick* object = new SneakyJoystick(s);
+
+	if (object->init()) {
+		object->autorelease();
+	} else {
+		CC_SAFE_RELEASE_NULL(object);
+	}
+	return object;
+}
+
+bool SneakyJoystick::init() {
+	if (!Layer::init()) {
+		return false;
+	}
+
+	return true;
+}
+
+bool SneakyJoystick::initWithRect(CCRect rect) {
+	_beganPoint = CCPointZero;
+	enabled = true;
+	bool pRet = false;
+	//if(CCSprite::init()){
+	stickPosition = CCPointZero;
+	degrees = 0.0f;
+	velocity = CCPointZero;
+	autoCenter = true;
+	isDPad = false;
+	hasDeadzone = false;
+	numberOfDirections = 4;
+
+	this->setJoystickRadius(rect.size.width / 2);
+	this->setThumbRadius(32.0f);
+	this->setDeadRadius(0.0f);
+
+	//Cocos node stuff
+	setPosition(rect.origin);
+	pRet = true;
+	//}
+	return pRet;
+}
+
+void SneakyJoystick::start() {
+	stickPosition = getBaseStick()->thumbStartPosition;
+}
+
+void SneakyJoystick::onEnterTransitionDidFinish() {
+	// Register Touch Event
+	auto dispatcher = Director::getInstance()->getEventDispatcher();
+	auto listener = EventListenerTouchOneByOne::create();
+
+	listener->onTouchBegan = CC_CALLBACK_2(SneakyJoystick::onTouchBegan, this);
+	listener->onTouchMoved = CC_CALLBACK_2(SneakyJoystick::onTouchMoved, this);
+	listener->onTouchEnded = CC_CALLBACK_2(SneakyJoystick::onTouchEnded, this);
+	listener->onTouchEnded = CC_CALLBACK_2(SneakyJoystick::onTouchEnded, this);
+
+	dispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+}
+
+float round(float r) {
+	return (r > 0.0) ? floor(r + 0.5) : ceil(r - 0.5);
+}
+
+void SneakyJoystick::updateVelocity(CCPoint point) {
+	// Calculate distance and angle from the center.
+	float dx = point.x - _beganPoint.x;
+	float dy = point.y - _beganPoint.y;
+	float dSq = dx * dx + dy * dy;
+
+	if (dSq <= deadRadiusSq) {
+		velocity = CCPointZero;
+		degrees = 0.0f;
+		stickPosition = getBaseStick()->thumbStartPosition;
+		return;
+	}
+
+	float angle = atan2f(dy, dx); // in radians
+	if (angle < 0) {
+		angle += SJ_PI_X_2;
+	}
+	float cosAngle;
+	float sinAngle;
+
+	if (isDPad) {
+		float anglePerSector = 360.0f / numberOfDirections * SJ_DEG2RAD;
+		angle = round(angle / anglePerSector) * anglePerSector;
+	}
+
+	cosAngle = cosf(angle);
+	sinAngle = sinf(angle);
+
+	// NOTE: Velocity goes from -1.0 to 1.0.
+	if (dSq > joystickRadiusSq || isDPad) {
+		dx = cosAngle * joystickRadius;
+		dy = sinAngle * joystickRadius;
+	}
+
+	velocity = CCPointMake(dx / joystickRadius, dy / joystickRadius);
+	degrees = angle * SJ_RAD2DEG;
+	sendData(velocity.x, velocity.y);
+
+	// Update the thumb's position
+	CCPoint d = getBaseStick()->thumbStartPosition;
+	stickPosition = ccp(dx + d.x, dy + d.y);
+	//CCLog("test123 dx: %d,\t d.x: %d,\t x: %d", dx, d.x, dx + d.x);
+	//CCLog("test123 dy: %d,\t d.y: %d,\t y: %d", dy, d.y, dy + d.y);
+}
+
+void SneakyJoystick::setIsDPad(bool b) {
+	isDPad = b;
+	if (isDPad) {
+		hasDeadzone = true;
+		this->setDeadRadius(10.0f);
+	}
+}
+
+void SneakyJoystick::setJoystickRadius(float r) {
+	joystickRadius = r;
+	joystickRadiusSq = r * r;
+}
+
+void SneakyJoystick::setThumbRadius(float r) {
+	thumbRadius = r;
+	thumbRadiusSq = r * r;
+}
+
+void SneakyJoystick::setDeadRadius(float r) {
+	deadRadius = r;
+	deadRadiusSq = r * r;
+}
+
+bool SneakyJoystick::onTouchBegan(CCTouch *touch, CCEvent *event) {
+
+	CCPoint location = CCDirector::sharedDirector()->convertToGL(
+			touch->getLocationInView());
+
+	// Only detect touch for its designated side of the screen
+	if ((location.x <= WIN_SIZE.width / 2 && side == D_RIGHT) || (location.x >= WIN_SIZE.width / 2 && side == D_LEFT))
+	return false;
+
+	location = this->convertToNodeSpace(location);
+
+	if (!enabled) {
+		this->updateVelocity(location);
+		return true;
+	}
+
+	// getBaseStick()->getBackgroundSprite()->setPosition(location);
+	// getBaseStick()->getThumbSprite()->setPosition(location);
+
+	_beganPoint = location;
+
+	// this->updateVelocity(location);
+	return true;
+
+	/*
+	 if(location.x < -joystickRadius || location.x > joystickRadius || location.y < -joystickRadius || location.y > joystickRadius){
+	 return false;
+	 }else{
+	 float dSq = location.x*location.x + location.y*location.y;
+	 if(joystickRadiusSq > dSq){
+	 this->updateVelocity(location);
+	 return true;
+	 }
+	 }
+	 return false;
+	 */
+}
+
+void SneakyJoystick::onTouchMoved(Touch *touch, Event *event) {
+	CCPoint location = CCDirector::sharedDirector()->convertToGL(
+			touch->getLocationInView());
+	location = this->convertToNodeSpace(location);
+	this->updateVelocity(location);
+}
+
+void SneakyJoystick::onTouchEnded(Touch *touch, Event *event) {
+	_beganPoint = CCPointZero;
+	CCPoint location = CCPointZero;
+	if (!autoCenter) {
+		CCPoint location = CCDirector::sharedDirector()->convertToGL(
+				touch->getLocationInView());
+		location = this->convertToNodeSpace(location);
+	}
+	this->updateVelocity(location);
+}
+
+void SneakyJoystick::onTouchCancelled(Touch *touch, Event *event) {
+	_beganPoint = CCPointZero;
+	this->onTouchEnded(touch, event);
+}
+
+void SneakyJoystick::sendData(float dx, float dy) {
+	char dir_points[100] = { 0 };
+
+	if (side == D_LEFT) {
+		sprintf(dir_points, "roll:   0.00, \tpitch:   0.00, \tyaw: %6.2lf, \tthrottle: %6.2lf", dx, dy);
+		CCLog("-> %s", dir_points);
+	} else if (side == D_RIGHT) {
+		sprintf(dir_points, "roll: %6.2lf, \tpitch: %6.2lf, \tyaw:   0.00, \tthrottle:   0.00", dx, dy);
+		CCLog("-> %s", dir_points);
+	}
+
+	/*	if (side == D_LEFT) {
+		//sprintf(dir_points, "roll: 0, pitch: 0, yaw: %6.10lf, throttle: %6.10lf", dx, dy);
+		//sprintf(dir_points, "yaw: %6.10lf, \nthrottle: %6.10lf", dx, dy);
+		CCLog("-> yaw: %6.2lf", dx);
+		CCLog("-> throttle: %6.2lf", dy);
+	} else if (side == D_RIGHT) {
+		//sprintf(dir_points, "roll: %6.10lf, pitch: %6.10lf, yaw: 0, throttle: 0", dx, dy);
+		sprintf(dir_points, "roll: %6.10lf, \npitch: %6.10lf", dx, dy);
+		CCLog("-> roll: %6.2lf", dx);
+		CCLog("-> pitch: %6.2lf", dy);
+	}*/
+
+	/*if (side == D_LEFT) {
+	 sprintf(dir_points, "0, 0, %6.10lf, %6.10lf", dx, dy);
+	 } else if (side == D_RIGHT) {
+	 sprintf(dir_points, "%6.10lf, %6.10lf, 0, 0", dx, dy);
+	 }
+
+	 connect(sd, (const sockaddr *) &server, sizeof(server));
+	 send(sd, dir_points, strlen(dir_points), 0);*/
+}

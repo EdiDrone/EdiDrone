@@ -1,0 +1,119 @@
+#include "HttpClientScene.h"
+
+HttpClientScene::HttpClientScene() {
+}
+
+HttpClientScene* HttpClientScene::create() {
+	HttpClientScene* object = new HttpClientScene();
+
+	if (object->init()) {
+		object->autorelease();
+	} else {
+		CC_SAFE_RELEASE_NULL(object);
+	}
+	return object;
+}
+
+bool HttpClientScene::init() {
+	 if (!Layer::init()) {
+	 	return false;
+	 }
+
+	 screen = Director::getInstance()->getVisibleSize();
+
+	 Label *label = Label::create("Http Request Test", "Arial", 28);
+	 label->setPosition(Point(screen.width / 2, screen.height - 50));
+	 addChild(label, 0);
+
+	 Menu *menuRequest = Menu::create();
+	 menuRequest->setPosition(Point::ZERO);
+	 addChild(menuRequest);
+
+	 // Get
+	 Label *labelGet = Label::create("Test Get", "Arial", 22);
+	 MenuItemLabel *itemGet = MenuItemLabel::create(labelGet, this,
+	 menu_selector(HttpClientScene::onMenuGetTestClicked));
+	 itemGet->setPosition(Point(screen.width / 2, screen.height - 100));
+	 menuRequest->addChild(itemGet);
+
+	 // Post
+	 Label *labelPost = Label::create("Test Post", "Arial", 22);
+	 MenuItemLabel *itemPost = MenuItemLabel::create(labelPost, this,
+	 menu_selector(HttpClientScene::onMenuPostTestClicked));
+	 itemPost->setPosition(Point(screen.width / 2, screen.height - 150));
+	 menuRequest->addChild(itemPost);
+
+	 // Response Code Label
+	 m_labelStatusCode = Label::create("HTTP Status Code", "Marker Felt", 20);
+	 m_labelStatusCode->setPosition(
+	 Point(screen.width / 2, screen.height - 250));
+	 addChild(m_labelStatusCode);
+
+	return true;
+}
+
+void HttpClientScene::onMenuGetTestClicked(Ref *sender) {
+	{
+		HttpRequest* request = new HttpRequest();
+		request->setUrl("http://executive.nese.com/test.php");
+		request->setRequestType(HttpRequest::Type::GET);
+		request->setResponseCallback(this,
+				callfuncND_selector(HttpClientScene::onHttpRequestCompleted));
+		request->setTag("GET test1");
+		HttpClient::getInstance()->send(request);
+		request->release();
+	}
+
+	// waiting
+	m_labelStatusCode->setString("waiting...");
+}
+
+void HttpClientScene::onMenuPostTestClicked(Ref *sender) {
+	{
+		HttpRequest* request = new HttpRequest();
+		request->setUrl("http://hyenacode.com/test/log.php");
+		request->setRequestType(HttpRequest::Type::POST);
+		request->setResponseCallback(this,
+				callfuncND_selector(HttpClientScene::onHttpRequestCompleted));
+
+		// Write the post data
+		const char* postData = "name=bob&position=21";
+		request->setRequestData(postData, strlen(postData));
+
+		request->setTag("POST test1");
+		HttpClient::getInstance()->send(request);
+		request->release();
+	}
+}
+
+void HttpClientScene::onHttpRequestCompleted(Node *sender, void *data) {
+	HttpResponse *response = (HttpResponse*) data;
+
+	if (!response) {
+		return;
+	}
+
+	// You can get original request type from: response->request->reqType
+	if (0 != strlen(response->getHttpRequest()->getTag())) {
+		//CCLog("test123 %s completed", response->getHttpRequest()->getTag());
+	}
+
+	int statusCode = response->getResponseCode();
+	char statusString[64] = { };
+	sprintf(statusString, "HTTP Status Code: %d, tag = %s", statusCode,
+			response->getHttpRequest()->getTag());
+	m_labelStatusCode->setString(statusString);
+
+	if (!response->isSucceed()) {
+		//CCLog("test123 error buffer: %s", response->getErrorBuffer());
+		return;
+	}
+
+	// Dump data
+	vector<char> *buffer = response->getResponseData();
+	string s = string((*buffer).begin(), (*buffer).end());
+	/*for (unsigned int i = 0; i < buffer->size(); i++) {
+	 printf("%c", (*buffer)[i]);
+	 }*/
+	fflush(stdout);
+}

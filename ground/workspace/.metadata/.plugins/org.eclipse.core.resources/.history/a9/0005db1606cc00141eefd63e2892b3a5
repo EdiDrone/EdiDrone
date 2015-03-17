@@ -1,0 +1,7 @@
+//Author: Simon Tran
+
+#include "cocos2d.h"
+
+#define WIN_SIZE Director::getInstance()->getWinSize()
+#define D_LEFT 0
+#define D_RIGHT 1

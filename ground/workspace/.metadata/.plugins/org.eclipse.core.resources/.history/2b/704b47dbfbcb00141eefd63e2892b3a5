@@ -1,0 +1,28 @@
+#ifndef __HTTPCLIENT_SCENE_H__
+#define __HTTPCLIENT_SCENE_H__
+
+#include "cocos2d.h"
+#include "cocos-ext.h"
+#include "ExtensionMacros.h"
+#include "HttpRequest.h"
+#include "HttpClient.h"
+
+USING_NS_CC;
+USING_NS_CC_EXT;
+using namespace network;
+
+class HttpClientScene: public Layer {
+
+public:
+	static HttpClientScene* create();
+	// A Selector callback
+	void onMenuGetTestClicked(Ref *sender);
+	void onMenuPostTestClicked(Ref *sender);
+	void onHttpRequestCompleted(Ref *sender, void *data);
+
+private:
+	HttpClientScene();
+	virtual bool init();
+
+};
+#endif

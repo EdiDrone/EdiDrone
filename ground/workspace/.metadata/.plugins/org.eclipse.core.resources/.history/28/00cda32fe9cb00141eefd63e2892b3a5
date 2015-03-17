@@ -1,0 +1,22 @@
+#ifndef __HTTPCLIENT_SCENE_H__
+#define __HTTPCLIENT_SCENE_H__
+
+#include "cocos2d.h"
+
+USING_NS_CC;
+class HttpClientScene: public Layer {
+
+public:
+	static HttpClientScene* create();
+	// A Selector callback
+	void onMenuGetTestClicked(Ref *sender);
+	void onMenuPostTestClicked(Ref *sender);
+	void onHttpRequestCompleted(Node *sender, void *data);
+	void menuCloseCallback(Ref* pSender);
+
+private:
+	HttpClientScene();
+	virtual bool init();
+
+};
+#endif

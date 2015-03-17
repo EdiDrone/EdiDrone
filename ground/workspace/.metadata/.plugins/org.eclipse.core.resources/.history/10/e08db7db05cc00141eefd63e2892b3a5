@@ -1,0 +1,115 @@
+//Author: Simon Tran
+
+#include "JoystickSkin.h"
+
+using namespace cocos2d;
+
+// Only this class still uses Cocos2dx 2.0 coding conventions
+JoystickSkin::~JoystickSkin()
+{
+	if (backgroundSprite)
+	{
+		backgroundSprite->release();
+		backgroundSprite = NULL;
+	}
+	if (thumbSprite)
+	{
+		thumbSprite->release();
+		thumbSprite = NULL;
+	}
+
+	if (joystick)
+	{
+		joystick->release();
+		joystick = NULL;
+	}
+}
+
+bool JoystickSkin::init()
+{
+	bool pRet = false;
+	if(Layer::init()){
+		this->backgroundSprite = NULL;
+
+		this->thumbSprite = NULL;
+
+		this->joystick = NULL;
+
+		this->schedule(schedule_selector(JoystickSkin::updatePositions));
+		pRet = true;
+	}
+	return pRet;	
+}
+
+void JoystickSkin::updatePositions(float delta)
+{
+	if(joystick && thumbSprite)
+    {
+        //float w = backgroundSprite->getContentSize().width * 0.5f;
+        //float h = backgroundSprite->getContentSize().height * 0.5f;
+        thumbSprite->setPosition(joystick->getStickPosition());
+    }
+}
+
+void JoystickSkin::setContentSize(Size s)
+{
+	Layer::setContentSize(s);
+	backgroundSprite->setContentSize(s);
+	//joystick.joystickRadius = s.width/2;
+}
+
+void JoystickSkin::setBackgroundSprite(Sprite *aSprite)
+{
+	if(backgroundSprite){
+		if(backgroundSprite->getParent())
+			backgroundSprite->getParent()->removeChild(backgroundSprite, true);
+		backgroundSprite->release();
+	}
+	aSprite->retain();
+	backgroundSprite = aSprite;
+	if(aSprite){
+		this->addChild(backgroundSprite, 0);
+		
+		this->setContentSize(backgroundSprite->getContentSize());
+	}
+}
+
+void JoystickSkin::setThumbSprite(Sprite *aSprite)
+{
+	if(thumbSprite){
+		if(thumbSprite->getParent())
+			thumbSprite->getParent()->removeChild(thumbSprite, true);
+		thumbSprite->release();
+	}
+	aSprite->retain();
+	thumbSprite = aSprite;
+	if(aSprite){
+        thumbStartPosition.x = backgroundSprite->getContentSize().width * 0.5f;
+        thumbStartPosition.y = backgroundSprite->getContentSize().height * 0.5f;
+        thumbSprite->setPosition(thumbStartPosition);
+		backgroundSprite->addChild(thumbSprite, 1);
+		
+		//joystick->setThumbRadius(thumbSprite->getContentSize().width/2);
+	}
+}
+
+void JoystickSkin::setJoystick(Joystick *aJoystick)
+{
+	if(joystick){
+		if(joystick->getParent())
+			joystick->getParent()->removeChild(joystick, true);
+		joystick->release();
+	}
+	aJoystick->retain();
+	joystick = aJoystick;
+	if(aJoystick){
+		this->addChild(aJoystick, 2);
+		if(thumbSprite)
+			joystick->setThumbRadius(thumbSprite->boundingBox().size.width/2);
+		else
+			joystick->setThumbRadius(0);
+		
+		if(backgroundSprite)
+			joystick->setJoystickRadius(backgroundSprite->boundingBox().size.width/2);
+	}
+}

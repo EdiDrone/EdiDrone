@@ -1,0 +1,25 @@
+#include "HttpClientScene.h"
+
+HttpClientScene::HttpClientScene() {
+}
+
+HttpClientScene* HttpClientScene::create() {
+	HttpClientScene* object = new HttpClientScene();
+
+	if (object->init()) {
+		object->autorelease();
+	} else {
+		CC_SAFE_RELEASE_NULL(object);
+	}
+	return object;
+}
+
+bool HttpClientScene::init() {
+	if (!Layer::init()) {
+		return false;
+	}
+
+	screen = Director::getInstance()->getVisibleSize();
+
+	return true;
+}

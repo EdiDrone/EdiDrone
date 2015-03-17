@@ -1,0 +1,53 @@
+#include "HttpClientScene.h"
+
+HttpClientScene::HttpClientScene() {
+}
+
+HttpClientScene* HttpClientScene::create() {
+	HttpClientScene* object = new HttpClientScene();
+
+	if (object->init()) {
+		object->autorelease();
+	} else {
+		CC_SAFE_RELEASE_NULL(object);
+	}
+	return object;
+}
+
+bool HttpClientScene::init() {
+	 if (!Layer::init()) {
+	 	return false;
+	 }
+
+	 screen = Director::getInstance()->getVisibleSize();
+
+	 Label *label = Label::create("Http Request Test", "Arial", 28);
+	 label->setPosition(Point(screen.width / 2, screen.height - 50));
+	 addChild(label, 0);
+
+	 Menu *menuRequest = Menu::create();
+	 menuRequest->setPosition(Point::ZERO);
+	 addChild(menuRequest);
+
+	 // Get
+	 Label *labelGet = Label::create("Test Get", "Arial", 22);
+	 MenuItemLabel *itemGet = MenuItemLabel::create(labelGet, this,
+	 menu_selector(MainScene::onMenuGetTestClicked));
+	 itemGet->setPosition(Point(screen.width / 2, screen.height - 100));
+	 menuRequest->addChild(itemGet);
+
+	 // Post
+	 Label *labelPost = Label::create("Test Post", "Arial", 22);
+	 MenuItemLabel *itemPost = MenuItemLabel::create(labelPost, this,
+	 menu_selector(MainScene::onMenuPostTestClicked));
+	 itemPost->setPosition(Point(screen.width / 2, screen.height - 150));
+	 menuRequest->addChild(itemPost);
+
+	 // Response Code Label
+	 m_labelStatusCode = Label::create("HTTP Status Code", "Marker Felt", 20);
+	 m_labelStatusCode->setPosition(
+	 Point(screen.width / 2, screen.height - 250));
+	 addChild(m_labelStatusCode);
+
+	return true;
+}

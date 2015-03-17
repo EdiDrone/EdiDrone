@@ -1,0 +1,43 @@
+#ifndef __MAIN_SCENE_H__
+#define __MAIN_SCENE_H__
+
+#include "cocos2d.h"
+#include "cocos-ext.h"
+#include "ExtensionMacros.h"
+#include "HttpRequest.h"
+#include "HttpClient.h"
+#include "SneakyInputCocos2dx/SneakyJoystick.h"
+#include "SneakyInputCocos2dx/SneakyJoystickSkinnedBase.h"
+
+USING_NS_CC;
+USING_NS_CC_EXT;
+using namespace network;
+using namespace std;
+
+class MainScene: public CCLayer {
+public:
+	// there's no 'id' in cpp, so we recommend returning the class instance pointer
+	static cocos2d::Scene* createScene();
+
+	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
+	virtual bool init();
+	void menuCloseCallback(Ref* pSender);
+	
+	// implement the "static create()" method manually
+	CREATE_FUNC(MainScene)
+	;
+
+	SneakyJoystick* ljoypad;
+	SneakyJoystick* rjoypad;
+
+private:
+	Label *m_labelStatusCode;
+	SneakyJoystickSkinnedBase* lbaseStick;
+	cocos2d::CCSprite* ljoypadBG;
+	cocos2d::CCSprite* ljoypadThumb;
+	SneakyJoystickSkinnedBase* rbaseStick;
+	cocos2d::CCSprite* rjoypadBG;
+	cocos2d::CCSprite* rjoypadThumb;
+};
+
+#endif // __MAIN_SCENE_H__

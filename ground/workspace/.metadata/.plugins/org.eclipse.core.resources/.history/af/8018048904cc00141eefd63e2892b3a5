@@ -1,0 +1,113 @@
+//Author: Simon Tran
+
+#include "MainScene.h"
+#include "Constants.h"
+#include "Design.h"
+
+#define JOYPAD_BG "joystick.png"
+#define JOYPAD_THUMB "joythumb.png"
+
+Scene* MainScene::createScene() {
+	// 'scene' is an autorelease object
+	auto scene = Scene::create();
+
+	// 'layer' is an autorelease object
+	auto layer = MainScene::create();
+
+	// Add layer as a child to scene
+	scene->addChild(layer);
+
+	// Return the scene
+	return scene;
+}
+
+// On "init" you need to initialize your instance
+bool MainScene::init() {
+	Design *order = Design::create();
+
+	// Use the intel wallpaper as the background
+	// Need to change because of copyright issues
+	auto *bg = Sprite::create("logo.jpg");
+	bg->setAnchorPoint(Point::ZERO);
+	order->setScaleX((Layer*) bg);
+	order->setScaleY((Layer*) bg);
+	bg->setPosition(Point::ZERO);
+	this->addChild(bg);
+
+	// Stick the title at the top of the screen
+	auto *titleLabel = LabelTTF::create("EdiDrone", "Vitamin.ttf", 72);
+	titleLabel->setAnchorPoint(Point::ZERO);
+	titleLabel->setPosition(
+			Point(order->scenterx((Layer*) titleLabel),
+					order->sinsideTop((Layer*) titleLabel)));
+	titleLabel->setFontFillColor(Color3B::YELLOW);
+	this->addChild(titleLabel);
+
+	// Left joystick
+	// Create the left joystick sprites
+	ljoypadBG = Sprite::create(JOYPAD_BG);
+	ljoypadThumb = Sprite::create(JOYPAD_THUMB);
+
+	// Create the left joystick listener 
+	lbaseStick = JoystickSkin::create();
+	ljoypad = Joystick::create(D_LEFT);
+	ljoypad->initWithRect(
+			Rect(0, 0, ljoypadBG->getContentSize().width,
+					ljoypadBG->getContentSize().height));
+					
+	lbaseStick->setBackgroundSprite(ljoypadBG);
+	lbaseStick->setThumbSprite(ljoypadThumb);
+	lbaseStick->setJoystick(ljoypad);
+	lbaseStick->setAnchorPoint(Point::ZERO);
+	// Manually tweaked the joystick position
+	lbaseStick->setPosition(
+			Point(order->slcenterx((Layer*) ljoypadBG, 0.9f) + 190,
+					order->scentery((Layer*) ljoypadBG)));
+
+	ljoypad = lbaseStick->getJoystick();
+	ljoypad->setEnabled(false);
+	ljoypad->setBaseStick(lbaseStick);
+	ljoypad->start();
+	addChild(lbaseStick);
+
+	// Right joystick
+	// Create the right joystick sprites
+	rjoypadBG = Sprite::create(JOYPAD_BG);
+	rjoypadThumb = Sprite::create(JOYPAD_THUMB);
+
+	// Create the right joystick listener 
+	rbaseStick = JoystickSkin::create();
+	rjoypad = Joystick::create(D_RIGHT);
+	rjoypad->initWithRect(
+			Rect(0, 0, rjoypadBG->getContentSize().width,
+					rjoypadBG->getContentSize().height));
+	rbaseStick->setBackgroundSprite(rjoypadBG);
+	rbaseStick->setThumbSprite(rjoypadThumb);
+	rbaseStick->setJoystick(rjoypad);
+	rbaseStick->setAnchorPoint(Point::ZERO);
+	// Manually tweaked the joystick position
+	rbaseStick->setPosition(
+			Point(order->srcenterx((Layer*) rjoypadBG, 0.9f) + 5,
+					order->scentery((Layer*) rjoypadBG)));
+
+	rjoypad = rbaseStick->getJoystick();
+	rjoypad->setEnabled(false);
+	rjoypad->setBaseStick(rbaseStick);
+	rjoypad->start();
+	addChild(rbaseStick);
+
+	return true;
+}
+
+void MainScene::menuCloseCallback(Ref* pSender) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
+	return;
+#endif
+
+	Director::getInstance()->end();
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+	exit(0);
+#endif
+}
