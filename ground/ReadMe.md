@@ -15,5 +15,3 @@ Then you are able to modify the files freely.
 Here's more information about how to build a Cocos2d-x Android Project.
 http://www.cocos2d-x.org/docs/manual/framework/native/v3/getting-started/how-to-build-android-project-with-eclipse/en
 But it is basically just running the build_native.py in the terminal to compile the changes made.
-
-If you have any more questions, you can email me at szfv1022@gmail.com
